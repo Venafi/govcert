@@ -1,62 +1,72 @@
 package govcert
 
 import (
-	"bytes"
 	"fmt"
 	"os/exec"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var vcertCmd *exec.Cmd
 
+type Client interface {
+	Do(*Request) (Response, error)
+	Retryable(*Request, time.Duration, time.Duration) (Response, error)
+}
+
 // Client represents the base command and input/output handling
-type Client struct {
-	cmd       *exec.Cmd
-	cmdPath   string
-	apiKey    string
-	output    *bytes.Buffer
-	errOutput *bytes.Buffer
+type client struct {
+	cmd     *exec.Cmd
+	cmdPath string
+	APIKey  string
+	// uuid    uuid.UUID
+	// output    *bytes.Buffer
+	// errOutput *bytes.Buffer
 }
 
 // NewClient returns a client that wraps the temporary VCert binary
-func NewClient(path, key string) *Client {
-	return &Client{
-		cmd:       exec.Command(path),
-		cmdPath:   path,
-		apiKey:    key,
-		output:    new(bytes.Buffer),
-		errOutput: new(bytes.Buffer),
+func NewClient(path, apikey string) *client {
+	return &client{
+		cmd:     exec.Command(path),
+		cmdPath: path,
+		APIKey:  apikey,
+		// output:    new(bytes.Buffer),
+		// errOutput: new(bytes.Buffer),
 	}
 }
 
+// func (c *client) GenUUID() {
+// 	c.uuid = uuid.NewV4()
+// }
+
 // NewAuthorisedRequest prepares requests that require an api key
-func (c *Client) NewAuthorisedRequest(apikey string) *Request {
-	c.cmd = exec.Command(c.cmdPath)
-	return &Request{
-		apiKey: apikey,
-		params: []string{},
-	}
-}
+// func (c *Client) NewAuthorisedRequest(apikey string) *Request {
+// 	c.cmd = exec.Command(c.cmdPath)
+// 	return &Request{
+// 		apiKey: apikey,
+// 		params: []string{},
+// 	}
+// }
 
 // NewRequest prepares requests that don't require an api key such as
 // registration or returning help
-func (c *Client) NewRequest() *Request {
-	c.cmd = exec.Command(c.cmdPath)
-	return &Request{
-		params: []string{},
-	}
-}
+// func (c *Client) NewRequest() *Request {
+// 	c.cmd = exec.Command(c.cmdPath)
+// 	return &Request{
+// 		params: []string{},
+// 	}
+// }
 
-func (c *Client) Do(req *Request) (Response, error) {
+func (c *client) Do(req *Request) (Response, error) {
 	cmd := *c.cmd
 	resp := NewResponse()
 	if !req.hasAction() {
 		return nil, fmt.Errorf("No action called")
 	}
-	if c.hasAPIKey() && !inSlice(req.params, "-k") {
-		req.params = append(req.params, "-k", c.apiKey)
-	}
+	// if req.hasAPIKey() && !inSlice(req.params, "-k") {
+	// 	req.params = append(req.params, "-k", req.apiKey)
+	// }
 	cmd.Stdout = resp.stdOut
 	cmd.Stderr = resp.errOut
 
@@ -66,25 +76,19 @@ func (c *Client) Do(req *Request) (Response, error) {
 	return resp, err
 }
 
-func (c *Client) parse(out []byte) string {
+func (c *client) Retryable(req *Request, waittime, maxwait time.Duration) (Response, error) {
+	return nil, nil
+}
+
+func (c *client) parse(out []byte) string {
 	if re, err := regexp.Compile("^[ .]+"); err == nil {
 		out = re.ReplaceAll(out, []byte{})
 	}
 	return strings.Replace(string(out), c.cmd.Path, "", -1)
 }
 
-func (c *Client) parseOutput() string {
-	return c.parse(c.output.Bytes())
-}
+// fun
 
-func (c *Client) parseError() string {
-	return c.parse(c.errOutput.Bytes())
-}
-
-func (c *Client) httpError() HTTPError {
-	return newHTTPError(c.errOutput.Bytes())
-}
-
-func (c *Client) hasAPIKey() bool {
-	return len(c.apiKey) > 0
+func (c *client) hasAPIKey() bool {
+	return len(c.APIKey) > 0
 }

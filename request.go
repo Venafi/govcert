@@ -2,15 +2,17 @@ package govcert
 
 // Request is the call that will be sent to the Venafi SaaS
 type Request struct {
-	apiKey string
-	Action string
-	params []string
-	help   bool
+	Action  string
+	Method  string
+	params  []string
+	Mparams map[string][]string
 }
 
-func NewRequest() *Request {
-	return &Request{}
-}
+// func NewRequest(c) *Request {
+// 	return &Request{
+// 		client: c,
+// 	}
+// }
 
 // Help returns help text for the client or action if set
 // func (r *Request) Help() (string, error) {
@@ -19,9 +21,9 @@ func NewRequest() *Request {
 // 	return r.Do()
 // }
 
-func (r *Request) APIKey(key string) {
-	r.apiKey = key
-}
+// func (r *Request) APIKey(key string) {
+// 	r.client.APIKey = key
+// }
 
 // Do builds the request and captures output
 // func (r *Request) Do() (string, error) {
@@ -45,6 +47,8 @@ func (r *Request) APIKey(key string) {
 // 	// r.client.cmd.
 // 	return r.client.parseOutput(), nil
 // }
+
+// func (r *Request) ParamMap()
 
 // Params accepts command parameters in multiple formats
 func (r *Request) Params(p ...interface{}) {
@@ -78,5 +82,9 @@ func inSlice(s []string, p string) bool {
 	}
 	return false
 }
+
+// func (r *Request) hasAPIKey() bool {
+// 	return len(r.apiKey) > 0
+// }
 
 // func (r *Request) paramSet() ()
