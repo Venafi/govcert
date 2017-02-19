@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -31,6 +32,7 @@ func NewClient(apiurl, apikey string) (govcert.Client, error) {
 
 func (c *client) Do(req *govcert.Request) (govcert.Response, error) {
 	// c.url.Path = req.Action
+	fmt.Println("---- API CLIENT DO CALLED ------")
 	u := c.url
 	u.Path = req.Action
 
@@ -40,9 +42,9 @@ func (c *client) Do(req *govcert.Request) (govcert.Response, error) {
 	var err error
 	switch req.Method {
 	case "POST":
-		json, err := json.Marshal(p)
-		if err != nil {
-			return nil, err
+		json, e := json.Marshal(p)
+		if e != nil {
+			return nil, e
 		}
 		buf := bytes.NewBuffer(json)
 		spew.Dump(buf.String())

@@ -23,6 +23,7 @@ type Response interface {
 	Body() (string, error)
 	RequestID() (string, error)
 	JSONBody() (map[string]interface{}, error)
+	Unmarshal(interface{}) error
 	// Location() (*url.URL, error)
 }
 
@@ -68,15 +69,27 @@ func (r *response) RequestID() (string, error) {
 
 func (r *response) JSONBody() (j map[string]interface{}, err error) {
 	// Clean output
-	re, err := regexp.Compile("^[ .]+")
+	// myStr := `^[.]+`
+	// testByte := []byte(myStr)
+	// spew.Dump(testByte)
+	regBytes := []byte{0x5e, 0x5b, 0x2e, 0x1a, 0x0a, 0x5d, 0x2b}
+	re, err := regexp.Compile(string(regBytes))
 	if err != nil {
 		return
 	}
 	fmt.Println("--- JSON BODY ---")
-	spew.Dump(r)
+	spew.Dump(r.stdOut.Bytes())
 	out := re.ReplaceAll(r.stdOut.Bytes(), []byte{})
 	fmt.Println("--- PURE OUT ---")
 	spew.Dump(out)
 	err = json.Unmarshal(out, &j)
 	return
+}
+
+func (r *response) Unmarshal(d interface{}) error {
+	fmt.Printf("---- RAW BODY ----\n%s\n---- RAW BODY END ----\n", spew.Sdump(r.apiResp.Body))
+	body, _ := ioutil.ReadAll(r.apiResp.Body)
+	fmt.Printf("---- JSON Body ----\n%s\n", body)
+	err := json.Unmarshal(body, d)
+	return err
 }
