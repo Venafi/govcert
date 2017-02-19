@@ -1,2 +1,3 @@
 /vcert/bins/*
 !/vcert/bins/.git-keep
+/vcert/tmp/*
