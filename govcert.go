@@ -13,6 +13,7 @@ var vcertCmd *exec.Cmd
 type Client interface {
 	Do(*Request) (Response, error)
 	Retryable(*Request, time.Duration, time.Duration) (Response, error)
+	CSR(*CSRReq) (*CSRResp, error)
 }
 
 // Client represents the base command and input/output handling
