@@ -3,9 +3,8 @@ package embedded
 import (
 	"io/ioutil"
 	"log"
-	"os"
 	"os/exec"
-	"strings"
+	"path/filepath"
 
 	"github.com/opencredo/govcert"
 )
@@ -17,12 +16,12 @@ func init() {
 	if err != nil {
 		log.Fatalf("Unable to find temp dir: %s", err)
 	}
-	log.Println(d)
 	assets := AssetNames()
 	if len(assets) == 0 {
 		log.Fatalf("vCert binary asset not found")
 	}
-	vcertPath = strings.Join([]string{d, assets[0]}, string(os.PathSeparator))
+
+	vcertPath = filepath.Join(d, assets[0])
 	if err = RestoreAsset(d, assets[0]); err != nil {
 		log.Fatalf("Unable to restore asset to tmp directory")
 	}
@@ -30,12 +29,6 @@ func init() {
 	if err = exec.Command(vcertPath, "-accept-eula").Run(); err != nil {
 		log.Fatalf("Error executing vcert: %s", err)
 	}
-	// RestoreAssets(d, "vcert")
-
-	// f, _ := ioutil.TempFile("", "")
-	// f.Chmod(0755)
-	// stat, _ := f.Stat()
-	// spew.Dump(stat)
 }
 
 func NewClient(apikey string) govcert.Client {
