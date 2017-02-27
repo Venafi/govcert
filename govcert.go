@@ -13,14 +13,14 @@ var vcertCmd *exec.Cmd
 type Client interface {
 	Do(*Request) (Response, error)
 	Retryable(*Request, time.Duration, time.Duration) (Response, error)
-	CSR(*CSRReq) (*CSRResp, error)
+	APIKey() string
 }
 
 // Client represents the base command and input/output handling
 type client struct {
 	cmd     *exec.Cmd
 	cmdPath string
-	APIKey  string
+	apiKey  string
 	// uuid    uuid.UUID
 	// output    *bytes.Buffer
 	// errOutput *bytes.Buffer
@@ -31,7 +31,7 @@ func NewClient(path, apikey string) *client {
 	return &client{
 		cmd:     exec.Command(path),
 		cmdPath: path,
-		APIKey:  apikey,
+		apiKey:  apikey,
 		// output:    new(bytes.Buffer),
 		// errOutput: new(bytes.Buffer),
 	}
@@ -65,6 +65,9 @@ func (c *client) Do(req *Request) (Response, error) {
 	if !req.hasAction() {
 		return nil, fmt.Errorf("No action called")
 	}
+	// if !inSlice(req.params, "-k") {
+	// 	req.params = append(req.params, "-k", c.APIKey)
+	// }
 	// if req.hasAPIKey() && !inSlice(req.params, "-k") {
 	// 	req.params = append(req.params, "-k", req.apiKey)
 	// }
@@ -90,6 +93,10 @@ func (c *client) parse(out []byte) string {
 
 // fun
 
+func (c *client) APIKey() string {
+	return c.apiKey
+}
+
 func (c *client) hasAPIKey() bool {
-	return len(c.APIKey) > 0
+	return len(c.apiKey) > 0
 }

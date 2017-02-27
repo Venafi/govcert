@@ -5,8 +5,10 @@ type Request struct {
 	Action  string
 	Method  string
 	params  []string
-	Mparams map[string][]string
+	Mparams map[string]RequestField
 }
+
+type RequestField []string
 
 // func NewRequest(c) *Request {
 // 	return &Request{
@@ -56,13 +58,13 @@ func (r *Request) Params(p ...interface{}) {
 		switch v := param.(type) {
 		case string:
 			r.params = append(r.params, "-"+v)
-		case map[string][]string:
+		case map[string]RequestField:
 			r.parseMap(v)
 		}
 	}
 }
 
-func (r *Request) parseMap(m map[string][]string) {
+func (r *Request) parseMap(m map[string]RequestField) {
 	for p, vals := range m {
 		for _, v := range vals {
 			r.params = append(r.params, "-"+p, v)

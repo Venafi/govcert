@@ -16,6 +16,7 @@ type EnrollReq struct {
 	KeyType     string
 	Chain       string
 	KeyPassword string
+	APIKey      string
 }
 
 type SAN struct {
@@ -25,30 +26,31 @@ type SAN struct {
 }
 
 func (e *EnrollReq) Request() (*Request, error) {
-	params := make(map[string][]string)
-	params["format"] = []string{"json"}
+	params := make(map[string]RequestField)
+	params["format"] = RequestField{"json"}
 	if strings.EqualFold(e.KeyType, "ecdsa") {
-		params["key-type"] = []string{"ecdsa"}
-		params["key-curve"] = []string{e.KeyCurve}
+		params["key-type"] = RequestField{"ecdsa"}
+		params["key-curve"] = RequestField{e.KeyCurve}
 	} else {
-		params["key-type"] = []string{"rsa"}
-		params["key-size"] = []string{strconv.Itoa(e.KeySize)}
+		params["key-type"] = RequestField{"rsa"}
+		params["key-size"] = RequestField{strconv.Itoa(e.KeySize)}
 	}
 	if e.CommonName == "" {
 		return nil, fmt.Errorf("Common name must be specified")
 	}
-	params["cn"] = []string{e.CommonName}
-	params["z"] = []string{e.Zone}
+	params["cn"] = RequestField{e.CommonName}
+	params["z"] = RequestField{e.Zone}
 	if e.Chain != "" {
-		params["chain"] = []string{e.Chain}
+		params["chain"] = RequestField{e.Chain}
 	}
 	if e.KeyPassword != "" {
-		params["key-password"] = []string{e.KeyPassword}
+		params["key-password"] = RequestField{e.KeyPassword}
 	}
+	params["k"] = RequestField{e.APIKey}
 
-	params["san-dns"] = e.Sans.DNS
-	params["san-email"] = e.Sans.Email
-	params["san-ip"] = e.Sans.IP
+	params["san-dns"] = RequestField(e.Sans.DNS)
+	params["san-email"] = RequestField(e.Sans.Email)
+	params["san-ip"] = RequestField(e.Sans.IP)
 	req := &Request{
 		Action:  "enroll",
 		Mparams: params,
