@@ -4,26 +4,20 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/url"
 	"regexp"
-
-	"io/ioutil"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 type response struct {
-	errOut  *bytes.Buffer
-	stdOut  *bytes.Buffer
-	apiResp *http.Response
+	errOut *bytes.Buffer
+	stdOut *bytes.Buffer
+	// apiResp *http.Response
 }
 
 type Response interface {
 	Body() (string, error)
 	RequestID() (string, error)
 	JSONBody() (map[string]interface{}, error)
-	Unmarshal(interface{}) error
+	// Unmarshal(interface{}) error
 	Pending() bool
 	CompletedID() (string, error)
 	ParseCSR() (*CSRResp, error)
@@ -31,27 +25,23 @@ type Response interface {
 	// Location() (*url.URL, error)
 }
 
-func ResponseFromAPI(resp *http.Response) *response {
-	// spew.Dump(resp.Body)
-	r := &response{
-		apiResp: resp,
-		stdOut:  new(bytes.Buffer),
-	}
-	body, _ := ioutil.ReadAll(resp.Body)
-	r.stdOut.Read(body)
-	spew.Dump(r)
-	return r
-}
+// func ResponseFromAPI(resp *http.Response) *response {
+// 	// spew.Dump(resp.Body)
+// 	r := &response{
+// 		apiResp: resp,
+// 		stdOut:  new(bytes.Buffer),
+// 	}
+// 	body, _ := ioutil.ReadAll(resp.Body)
+// 	r.stdOut.Read(body)
+// 	spew.Dump(r)
+// 	return r
+// }
 
 func NewResponse() *response {
 	return &response{
 		stdOut: new(bytes.Buffer),
 		errOut: new(bytes.Buffer),
 	}
-}
-
-func (r *response) Location() (*url.URL, error) {
-	return nil, nil
 }
 
 func (r *response) Body() (string, error) {
@@ -92,11 +82,11 @@ func (r *response) JSONBody() (j map[string]interface{}, err error) {
 	return
 }
 
-func (r *response) Unmarshal(d interface{}) error {
-	body, _ := ioutil.ReadAll(r.apiResp.Body)
-	err := json.Unmarshal(body, d)
-	return err
-}
+// func (r *response) Unmarshal(d interface{}) error {
+// 	body, _ := ioutil.ReadAll(r.apiResp.Body)
+// 	err := json.Unmarshal(body, d)
+// 	return err
+// }
 
 func (r *response) Pending() bool {
 	re, _ := regexp.Compile("Certificate issuance pending")

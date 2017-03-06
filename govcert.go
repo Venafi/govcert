@@ -5,14 +5,12 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
-	"time"
 )
 
 var vcertCmd *exec.Cmd
 
 type Client interface {
-	Do(*Request) (Response, error)
-	Retryable(*Request, time.Duration, time.Duration) (Response, error)
+	Do(Requestor) (Response, error)
 	APIKey() string
 }
 
@@ -29,9 +27,8 @@ type client struct {
 // NewClient returns a client that wraps the temporary VCert binary
 func NewClient(path, apikey string) *client {
 	return &client{
-		cmd:     exec.Command(path),
-		cmdPath: path,
-		apiKey:  apikey,
+		cmd:    exec.Command(path),
+		apiKey: apikey,
 		// output:    new(bytes.Buffer),
 		// errOutput: new(bytes.Buffer),
 	}
@@ -59,11 +56,18 @@ func NewClient(path, apikey string) *client {
 // 	}
 // }
 
-func (c *client) Do(req *Request) (Response, error) {
+func (c *client) Do(r Requestor) (Response, error) {
 	cmd := *c.cmd
 	resp := NewResponse()
+	req, err := r.Request()
+	if err != nil {
+		return nil, err
+	}
 	if !req.hasAction() {
 		return nil, fmt.Errorf("No action called")
+	}
+	if r.RequiresAPI() {
+		req.params = append(req.params, "-k", c.apiKey)
 	}
 	// if !inSlice(req.params, "-k") {
 	// 	req.params = append(req.params, "-k", c.APIKey)
@@ -76,13 +80,13 @@ func (c *client) Do(req *Request) (Response, error) {
 
 	cmd.Args = append(cmd.Args, req.Action)
 	cmd.Args = append(cmd.Args, req.params...)
-	err := cmd.Run()
+	err = cmd.Run()
 	return resp, err
 }
 
-func (c *client) Retryable(req *Request, waittime, maxwait time.Duration) (Response, error) {
-	return nil, nil
-}
+// func (c *client) Retryable(req *Request, waittime, maxwait time.Duration) (Response, error) {
+// 	return nil, nil
+// }
 
 func (c *client) parse(out []byte) string {
 	if re, err := regexp.Compile("^[ .]+"); err == nil {

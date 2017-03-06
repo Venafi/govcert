@@ -1,7 +1,15 @@
 package govcert
 
+import (
+	"strings"
+)
+
 // Request is the call that will be sent to the Venafi SaaS
-type Request struct {
+type Requestor interface {
+	Request() (*request, error)
+	RequiresAPI() bool
+}
+type request struct {
 	Action  string
 	Method  string
 	params  []string
@@ -53,7 +61,7 @@ type RequestField []string
 // func (r *Request) ParamMap()
 
 // Params accepts command parameters in multiple formats
-func (r *Request) Params(p ...interface{}) {
+func (r *request) Params(p ...interface{}) {
 	for _, param := range p {
 		switch v := param.(type) {
 		case string:
@@ -64,7 +72,7 @@ func (r *Request) Params(p ...interface{}) {
 	}
 }
 
-func (r *Request) parseMap(m map[string]RequestField) {
+func (r *request) parseMap(m map[string]RequestField) {
 	for p, vals := range m {
 		for _, v := range vals {
 			r.params = append(r.params, "-"+p, v)
@@ -72,8 +80,8 @@ func (r *Request) parseMap(m map[string]RequestField) {
 	}
 }
 
-func (r *Request) hasAction() bool {
-	return len(r.Action) > 0
+func (r *request) hasAction() bool {
+	return len(strings.TrimSpace(r.Action)) > 0
 }
 
 func inSlice(s []string, p string) bool {

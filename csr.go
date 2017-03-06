@@ -18,7 +18,7 @@ type CSRReq struct {
 	SanIP              []string
 }
 
-func (c *CSRReq) Request() (*Request, error) {
+func (c *CSRReq) Request() (*request, error) {
 	params := make(map[string]RequestField)
 	if c.CommonName == "" {
 		return nil, fmt.Errorf("CommonName must be specified")
@@ -33,13 +33,16 @@ func (c *CSRReq) Request() (*Request, error) {
 	params["san-dns"] = RequestField(c.SanDNS)
 	params["san-ip"] = RequestField(c.SanIP)
 	params["key-password"] = RequestField{c.KeyPassword}
-	params["k"] = RequestField{}
-	req := &Request{
+	req := &request{
 		Action:  "gencsr",
 		Mparams: params,
 	}
 	req.Params(params, "no-prompt")
 	return req, nil
+}
+
+func (CSRReq) RequiresAPI() bool {
+	return false
 }
 
 type CSRResp struct {
@@ -63,9 +66,4 @@ func (r response) ParseCSR() (*CSRResp, error) {
 		PrivateKey: requestMatches[0],
 		CSR:        csrMatches[0],
 	}, nil
-}
-
-func (c *client) CSR(req *CSRReq) (*CSRResp, error) {
-	resp := &CSRResp{}
-	return resp, nil
 }
