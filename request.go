@@ -1,16 +1,28 @@
 package govcert
 
+import (
+	"strings"
+)
+
 // Request is the call that will be sent to the Venafi SaaS
-type Request struct {
-	apiKey string
-	Action string
-	params []string
-	help   bool
+type Requestor interface {
+	Request() (*request, error)
+	RequiresAPI() bool
+}
+type request struct {
+	Action  string
+	Method  string
+	params  []string
+	Mparams map[string]RequestField
 }
 
-func NewRequest() *Request {
-	return &Request{}
-}
+type RequestField []string
+
+// func NewRequest(c) *Request {
+// 	return &Request{
+// 		client: c,
+// 	}
+// }
 
 // Help returns help text for the client or action if set
 // func (r *Request) Help() (string, error) {
@@ -19,9 +31,9 @@ func NewRequest() *Request {
 // 	return r.Do()
 // }
 
-func (r *Request) APIKey(key string) {
-	r.apiKey = key
-}
+// func (r *Request) APIKey(key string) {
+// 	r.client.APIKey = key
+// }
 
 // Do builds the request and captures output
 // func (r *Request) Do() (string, error) {
@@ -46,19 +58,21 @@ func (r *Request) APIKey(key string) {
 // 	return r.client.parseOutput(), nil
 // }
 
+// func (r *Request) ParamMap()
+
 // Params accepts command parameters in multiple formats
-func (r *Request) Params(p ...interface{}) {
+func (r *request) Params(p ...interface{}) {
 	for _, param := range p {
 		switch v := param.(type) {
 		case string:
 			r.params = append(r.params, "-"+v)
-		case map[string][]string:
+		case map[string]RequestField:
 			r.parseMap(v)
 		}
 	}
 }
 
-func (r *Request) parseMap(m map[string][]string) {
+func (r *request) parseMap(m map[string]RequestField) {
 	for p, vals := range m {
 		for _, v := range vals {
 			r.params = append(r.params, "-"+p, v)
@@ -66,8 +80,8 @@ func (r *Request) parseMap(m map[string][]string) {
 	}
 }
 
-func (r *Request) hasAction() bool {
-	return len(r.Action) > 0
+func (r *request) hasAction() bool {
+	return len(strings.TrimSpace(r.Action)) > 0
 }
 
 func inSlice(s []string, p string) bool {
@@ -78,5 +92,9 @@ func inSlice(s []string, p string) bool {
 	}
 	return false
 }
+
+// func (r *Request) hasAPIKey() bool {
+// 	return len(r.apiKey) > 0
+// }
 
 // func (r *Request) paramSet() ()
