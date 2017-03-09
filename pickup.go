@@ -27,5 +27,5 @@ func (p *PickupReq) Request() (*request, error) {
 }
 
 func (PickupReq) RequiresAPI() bool {
-	return false
+	return true
 }
