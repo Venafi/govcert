@@ -6,7 +6,9 @@ GIT_COMMIT=$(shell git rev-parse HEAD)
 
 BUILD_DIR=$(shell pwd)
 
-VCDIR=vcert
+VCDIR=$(BUILD_DIR)/embedded
+
+BINNAME=vcert
 
 help:
 	@echo 'Management commands for the govcert library:'
@@ -20,35 +22,38 @@ default: clean build
 
 build: $(VCDIR)/vcert_darwin_amd64.go $(VCDIR)/vcert_darwin_386.go $(VCDIR)/vcert_linux_amd64.go $(VCDIR)/vcert_linux_386.go $(VCDIR)/vcert_windows_amd64.go $(VCDIR)/vcert_windows_386.go
 
-$(VCDIR)/vcert_darwin_amd64.go: vcert/bins/$(VCERTVERSION)/darwin/VCert
-	cp vcert/bins/$(VCERTVERSION)/darwin/VCert vcert/bins/$(VCERTVERSION)/vcert/VCert
-	cd vcert/bins/$(VCERTVERSION) && go-bindata -o ../../vcert_darwin_amd64.go -pkg vcert vcert
+bindata:
+	go get -u -v github.com/jteeuwen/go-bindata/go-bindata
+
+$(VCDIR)/vcert_darwin_amd64.go: bindata vcert/bins/$(VCERTVERSION)/darwin/*ert
+	cp vcert/bins/$(VCERTVERSION)/darwin/*ert vcert/bins/$(VCERTVERSION)/vcert/$(BINNAME)
+	cd vcert/bins/$(VCERTVERSION) && go-bindata -o $(VCDIR)/vcert_darwin_amd64.go -pkg vcert vcert
 	rm vcert/bins/$(VCERTVERSION)/vcert/*
 
-$(VCDIR)/vcert_darwin_386.go: vcert/bins/$(VCERTVERSION)/darwin/VCert86
-	cp vcert/bins/$(VCERTVERSION)/darwin/VCert86 vcert/bins/$(VCERTVERSION)/vcert/VCert
-	cd vcert/bins/$(VCERTVERSION) && go-bindata -o ../../vcert_darwin_386.go -pkg vcert vcert
+$(VCDIR)/vcert_darwin_386.go: bindata vcert/bins/$(VCERTVERSION)/darwin/VCert86
+	cp vcert/bins/$(VCERTVERSION)/darwin/*86 vcert/bins/$(VCERTVERSION)/vcert/$(BINNAME)
+	cd vcert/bins/$(VCERTVERSION) && go-bindata -o $(VCDIR)/vcert_darwin_386.go -pkg vcert vcert
 	rm vcert/bins/$(VCERTVERSION)/vcert/*
 
-$(VCDIR)/vcert_linux_amd64.go: vcert/bins/$(VCERTVERSION)/linux/VCert
-	cp vcert/bins/$(VCERTVERSION)/linux/VCert vcert/bins/$(VCERTVERSION)/vcert/VCert
-	cd vcert/bins/$(VCERTVERSION) && go-bindata -o ../../vcert_linux_amd64.go -pkg vcert vcert
+$(VCDIR)/vcert_linux_amd64.go: bindata vcert/bins/$(VCERTVERSION)/linux/VCert
+	cp vcert/bins/$(VCERTVERSION)/linux/*ert vcert/bins/$(VCERTVERSION)/vcert/$(BINNAME)
+	cd vcert/bins/$(VCERTVERSION) && go-bindata -o $(VCDIR)/vcert_linux_amd64.go -pkg vcert vcert
 	rm vcert/bins/$(VCERTVERSION)/vcert/*
 
-$(VCDIR)/vcert_linux_386.go: vcert/bins/$(VCERTVERSION)/linux/VCert86
-	cp vcert/bins/$(VCERTVERSION)/linux/VCert86 vcert/bins/$(VCERTVERSION)/vcert/VCert
-	cd vcert/bins/$(VCERTVERSION) && go-bindata -o ../../vcert_linux_386.go -pkg vcert vcert
+$(VCDIR)/vcert_linux_386.go: bindata vcert/bins/$(VCERTVERSION)/linux/VCert86
+	cp vcert/bins/$(VCERTVERSION)/linux/*86 vcert/bins/$(VCERTVERSION)/vcert/$(BINNAME)
+	cd vcert/bins/$(VCERTVERSION) && go-bindata -o $(VCDIR)/vcert_linux_386.go -pkg vcert vcert
 	rm vcert/bins/$(VCERTVERSION)/vcert/*
 
-$(VCDIR)/vcert_windows_amd64.go: vcert/bins/$(VCERTVERSION)/windows/VCert.exe
-	cp vcert/bins/$(VCERTVERSION)/windows/VCert.exe vcert/bins/$(VCERTVERSION)/vcert/VCert.exe
-	cd vcert/bins/$(VCERTVERSION) && go-bindata -o ../../vcert_windows_amd64.go -pkg vcert vcert
+$(VCDIR)/vcert_windows_amd64.go: bindata vcert/bins/$(VCERTVERSION)/windows/VCert.exe
+	cp vcert/bins/$(VCERTVERSION)/windows/*rt.exe vcert/bins/$(VCERTVERSION)/vcert/$(BINNAME).exe
+	cd vcert/bins/$(VCERTVERSION) && go-bindata -o $(VCDIR)/vcert_windows_amd64.go -pkg vcert vcert
 	rm vcert/bins/$(VCERTVERSION)/vcert/*
 
-$(VCDIR)/vcert_windows_386.go: vcert/bins/$(VCERTVERSION)/windows/VCert86.exe
-	cp vcert/bins/$(VCERTVERSION)/windows/VCert86.exe vcert/bins/$(VCERTVERSION)/vcert/VCert.exe
-	cd vcert/bins/$(VCERTVERSION) && go-bindata -o ../../vcert_windows_386.go -pkg vcert vcert
+$(VCDIR)/vcert_windows_386.go: bindata vcert/bins/$(VCERTVERSION)/windows/VCert86.exe
+	cp vcert/bins/$(VCERTVERSION)/windows/*86.exe vcert/bins/$(VCERTVERSION)/vcert/$(BINNAME).exe
+	cd vcert/bins/$(VCERTVERSION) && go-bindata -o $(VCDIR)/vcert_windows_386.go -pkg vcert vcert
 	rm vcert/bins/$(VCERTVERSION)/vcert/*
 
 clean:
-	rm $(VCDIR)/vcert_*
+	rm $(VCDIR)/vcert_*.go
