@@ -10,7 +10,7 @@ import (
 	"bytes"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/opencredo/govcert"
+	"github.com/Venafi/govcert"
 )
 
 type client struct {

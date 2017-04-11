@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/opencredo/govcert"
+	"github.com/Venafi/govcert"
 )
 
 var vcertPath string
