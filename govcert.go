@@ -3,8 +3,12 @@ package govcert
 import (
 	"fmt"
 	"os/exec"
+	"os/user"
 	"regexp"
 	"strings"
+        "os"
+        "io"
+	"path/filepath"
 )
 
 var vcertCmd *exec.Cmd
@@ -80,6 +84,17 @@ func (c *client) Do(r Requestor) (Response, error) {
 
 	cmd.Args = append(cmd.Args, req.Action)
 	cmd.Args = append(cmd.Args, req.params...)
+
+        s := strings.Join(cmd.Args," ")
+        // If the debug flag file is present, write command args
+        // to named file in debug flag file
+	var fname string
+        user,_ := user.Current()
+        flagfile := filepath.Join(user.HomeDir,"debug.flag")
+        freader,_ := os.Open(flagfile)
+        fmt.Fscan(freader,&fname)
+	fmt.Printf(fname)
+        WriteStringToFile(fname, s)
 	err = cmd.Run()
 	return resp, err
 }
@@ -103,4 +118,21 @@ func (c *client) APIKey() string {
 
 func (c *client) hasAPIKey() bool {
 	return len(c.apiKey) > 0
+}
+
+// Copied from https://siongui.github.io/2016/04/05/go-write-string-to-file/
+
+func WriteStringToFile(filepath, s string) error {
+	fo, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer fo.Close()
+
+	_, err = io.Copy(fo, strings.NewReader(s))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

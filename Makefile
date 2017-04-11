@@ -30,27 +30,27 @@ $(VCDIR)/vcert_darwin_amd64.go: bindata vcert/bins/$(VCERTVERSION)/darwin/*ert
 	cd vcert/bins/$(VCERTVERSION) && go-bindata -o $(VCDIR)/vcert_darwin_amd64.go -pkg embedded vcert
 	rm vcert/bins/$(VCERTVERSION)/vcert/*
 
-$(VCDIR)/vcert_darwin_386.go: bindata vcert/bins/$(VCERTVERSION)/darwin/VCert86
+$(VCDIR)/vcert_darwin_386.go: bindata vcert/bins/$(VCERTVERSION)/darwin/vcert86
 	cp vcert/bins/$(VCERTVERSION)/darwin/*86 vcert/bins/$(VCERTVERSION)/vcert/$(BINNAME)
 	cd vcert/bins/$(VCERTVERSION) && go-bindata -o $(VCDIR)/vcert_darwin_386.go -pkg embedded vcert
 	rm vcert/bins/$(VCERTVERSION)/vcert/*
 
-$(VCDIR)/vcert_linux_amd64.go: bindata vcert/bins/$(VCERTVERSION)/linux/VCert
+$(VCDIR)/vcert_linux_amd64.go: bindata vcert/bins/$(VCERTVERSION)/linux/vcert
 	cp vcert/bins/$(VCERTVERSION)/linux/*ert vcert/bins/$(VCERTVERSION)/vcert/$(BINNAME)
 	cd vcert/bins/$(VCERTVERSION) && go-bindata -o $(VCDIR)/vcert_linux_amd64.go -pkg embedded vcert
 	rm vcert/bins/$(VCERTVERSION)/vcert/*
 
-$(VCDIR)/vcert_linux_386.go: bindata vcert/bins/$(VCERTVERSION)/linux/VCert86
+$(VCDIR)/vcert_linux_386.go: bindata vcert/bins/$(VCERTVERSION)/linux/vcert86
 	cp vcert/bins/$(VCERTVERSION)/linux/*86 vcert/bins/$(VCERTVERSION)/vcert/$(BINNAME)
 	cd vcert/bins/$(VCERTVERSION) && go-bindata -o $(VCDIR)/vcert_linux_386.go -pkg embedded vcert
 	rm vcert/bins/$(VCERTVERSION)/vcert/*
 
-$(VCDIR)/vcert_windows_amd64.go: bindata vcert/bins/$(VCERTVERSION)/windows/VCert.exe
+$(VCDIR)/vcert_windows_amd64.go: bindata vcert/bins/$(VCERTVERSION)/windows/vcert.exe
 	cp vcert/bins/$(VCERTVERSION)/windows/*rt.exe vcert/bins/$(VCERTVERSION)/vcert/$(BINNAME).exe
 	cd vcert/bins/$(VCERTVERSION) && go-bindata -o $(VCDIR)/vcert_windows_amd64.go -pkg embedded vcert
 	rm vcert/bins/$(VCERTVERSION)/vcert/*
 
-$(VCDIR)/vcert_windows_386.go: bindata vcert/bins/$(VCERTVERSION)/windows/VCert86.exe
+$(VCDIR)/vcert_windows_386.go: bindata vcert/bins/$(VCERTVERSION)/windows/vcert86.exe
 	cp vcert/bins/$(VCERTVERSION)/windows/*86.exe vcert/bins/$(VCERTVERSION)/vcert/$(BINNAME).exe
 	cd vcert/bins/$(VCERTVERSION) && go-bindata -o $(VCDIR)/vcert_windows_386.go -pkg embedded vcert
 	rm vcert/bins/$(VCERTVERSION)/vcert/*
