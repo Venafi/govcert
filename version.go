@@ -3,10 +3,10 @@ package govcert
 import "fmt"
 
 // Version represents the current version of the govcert library
-const Version = "0.2.0"
+const Version = "0.4.0"
 
 // VCertVersion defines the version of the VCert binary to embed within the library
-const VCertVersion = "2.17.1.0"
+const VCertVersion = "2.17.1.1"
 
 // GetVersion returns the current version of the govcert library as well as the
 func GetVersion() string {
