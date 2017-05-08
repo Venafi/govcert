@@ -16,7 +16,7 @@ type EnrollReq struct {
 	KeyType     string
 	Chain       string
 	KeyPassword string
-	APIKey      string
+	//APIKey      string
 }
 
 type SAN struct {
@@ -32,7 +32,7 @@ func (e *EnrollReq) Request() (*request, error) {
 		return nil, fmt.Errorf("Common name must be specified")
 	}
 	if e.Zone == "" {
-		e.Zone = "default"
+		e.Zone = "Default"
 	}
 	params["z"] = RequestField{e.Zone}
 	if strings.EqualFold(e.KeyType, "ecdsa") {
@@ -61,6 +61,6 @@ func (e *EnrollReq) Request() (*request, error) {
 	return req, nil
 }
 
-func (EnrollReq) RequiresAPI() bool {
+func (EnrollReq) RequiresAuth() bool {
 	return true
 }

@@ -16,6 +16,9 @@ var vcertCmd *exec.Cmd
 type Client interface {
 	Do(Requestor) (Response, error)
 	APIKey() string
+	URL() string
+	Username() string
+	Password() string
 }
 
 // Client represents the base command and input/output handling
@@ -23,18 +26,26 @@ type client struct {
 	cmd     *exec.Cmd
 	cmdPath string
 	apiKey  string
-	// uuid    uuid.UUID
-	// output    *bytes.Buffer
-	// errOutput *bytes.Buffer
+	url	string
+	tppUser	string
+	tppPass	string
 }
 
 // NewClient returns a client that wraps the temporary VCert binary
-func NewClient(path, apikey string) *client {
+func NewClient(path, apikey string, url string) *client {
 	return &client{
 		cmd:    exec.Command(path),
 		apiKey: apikey,
-		// output:    new(bytes.Buffer),
-		// errOutput: new(bytes.Buffer),
+		url:	url,
+	}
+}
+
+func NewClientTPP(path, username string, password string, url string) *client {
+	return &client{
+		cmd:    exec.Command(path),
+		tppUser: username,
+		tppPass: password,
+		url: 	url,
 	}
 }
 
@@ -70,8 +81,25 @@ func (c *client) Do(r Requestor) (Response, error) {
 	if !req.hasAction() {
 		return nil, fmt.Errorf("No action called")
 	}
-	if r.RequiresAPI() {
-		req.params = append(req.params, "-k", c.apiKey)
+	if r.RequiresAuth() {
+		if c.hasAPIKey() {
+			req.params = append(req.params, "-k", c.apiKey)
+			if c.hasURL() {
+				if !strings.HasSuffix(c.url, "/") {
+					c.url += "/"  // work around vcert bug requiring url to end with a slash character
+				}
+				req.params = append(req.params, "-venafi-saas-url", c.url)
+			}
+		} else if c.hasUsername() && c.hasPassword() {
+			if !c.hasURL() {
+				return nil, fmt.Errorf("Missing required WebSDK URL")
+			}
+			req.params = append(req.params, "-tpp-url", c.url)
+			req.params = append(req.params, "-tpp-user", c.tppUser)
+			req.params = append(req.params, "-tpp-password", c.tppPass)
+		} else {
+			return nil, fmt.Errorf("Insufficient auth parameters")
+		}
 	}
 	// if !inSlice(req.params, "-k") {
 	// 	req.params = append(req.params, "-k", c.APIKey)
@@ -96,6 +124,11 @@ func (c *client) Do(r Requestor) (Response, error) {
 	fmt.Printf(fname)
         WriteStringToFile(fname, s)
 	err = cmd.Run()
+
+	if err != nil {
+		body,_ := resp.Body()
+		return nil, fmt.Errorf(err.Error() + "\n" + body)
+	}
 	return resp, err
 }
 
@@ -118,6 +151,30 @@ func (c *client) APIKey() string {
 
 func (c *client) hasAPIKey() bool {
 	return len(c.apiKey) > 0
+}
+
+func (c *client) URL() string {
+	return c.url
+}
+
+func (c *client) hasURL() bool {
+	return len(c.url) > 0
+}
+
+func (c *client) Username() string {
+	return c.tppUser
+}
+
+func (c *client) hasUsername() bool {
+	return len(c.tppUser) > 0
+}
+
+func (c *client) Password() string {
+	return c.tppPass
+}
+
+func (c *client) hasPassword() bool {
+	return len(c.tppPass) > 0
 }
 
 // Copied from https://siongui.github.io/2016/04/05/go-write-string-to-file/

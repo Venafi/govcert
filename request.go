@@ -7,7 +7,7 @@ import (
 // Request is the call that will be sent to the Venafi SaaS
 type Requestor interface {
 	Request() (*request, error)
-	RequiresAPI() bool
+	RequiresAuth() bool
 }
 type request struct {
 	Action  string

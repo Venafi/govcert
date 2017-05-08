@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"strings"
 )
 
 type response struct {
@@ -53,16 +54,17 @@ func (r *response) Body() (string, error) {
 
 func (r *response) RequestID() (string, error) {
 	// Certificate issuance pending, you may request the retrieval of the Certificate later using the Request ID: 262d3ff0-efa9-11e6-9be2-891dab33d0eb
-	re := regexp.MustCompile("Certificate issuance pending.*Request ID: ([a-z0-9-]+)")
+	// Certificate issuance pending. You may request the retrieval of the Certificate later using the Request ID: \VED\Policy\DevOps Certificates\terraform.venafi.example
+	re := regexp.MustCompile("Certificate issuance pending.*Request ID: ([^<^\n]+)")
 	requestMatches := re.FindStringSubmatch(r.errOut.String())
-	if len(requestMatches) == 2 {
-		return requestMatches[1], nil
+	if len(requestMatches) >= 2 {
+		return strings.TrimSpace(requestMatches[1]), nil
 	}
 	return "", fmt.Errorf("No pending Request ID was found")
 }
 
 func (r *response) CompletedID() (string, error) {
-	re := regexp.MustCompile("retrieved request for ([a-z0-9-]+)")
+	re := regexp.MustCompile("retrieved request for ([^<]+)")
 	requestMatches := re.FindStringSubmatch(r.errOut.String())
 	if len(requestMatches) == 2 {
 		return requestMatches[1], nil

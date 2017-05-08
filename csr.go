@@ -41,7 +41,7 @@ func (c *CSRReq) Request() (*request, error) {
 	return req, nil
 }
 
-func (CSRReq) RequiresAPI() bool {
+func (CSRReq) RequiresAuth() bool {
 	return false
 }
 

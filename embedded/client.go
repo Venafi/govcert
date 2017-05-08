@@ -31,6 +31,10 @@ func init() {
 	}
 }
 
-func NewClient(apikey string) govcert.Client {
-	return govcert.NewClient(vcertPath, apikey)
+func NewClient(apikey string, url string) govcert.Client {
+	return govcert.NewClient(vcertPath, apikey, url)
+}
+
+func NewClientTPP(username string, password string, url string) govcert.Client {
+	return govcert.NewClientTPP(vcertPath, username, password, url)
 }

@@ -26,6 +26,6 @@ func (p *PickupReq) Request() (*request, error) {
 	return req, nil
 }
 
-func (PickupReq) RequiresAPI() bool {
+func (PickupReq) RequiresAuth() bool {
 	return true
 }
