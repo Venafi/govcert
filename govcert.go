@@ -116,13 +116,15 @@ func (c *client) Do(r Requestor) (Response, error) {
         s := strings.Join(cmd.Args," ")
         // If the debug flag file is present, write command args
         // to named file in debug flag file
-	var fname string
-        user,_ := user.Current()
-        flagfile := filepath.Join(user.HomeDir,"debug.flag")
-        freader,_ := os.Open(flagfile)
-        fmt.Fscan(freader,&fname)
-	fmt.Printf(fname)
-        WriteStringToFile(fname, s)
+	user, oserror := user.Current()
+	if oserror.Error() == "" {
+		var fname string
+        	flagfile := filepath.Join(user.HomeDir,"debug.flag")
+        	freader,_ := os.Open(flagfile)
+        	fmt.Fscan(freader,&fname)
+		fmt.Printf(fname)
+        	WriteStringToFile(fname, s)
+	}
 	err = cmd.Run()
 
 	if err != nil {
